@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Citoyen
+import com.etaratasy.app.model.Citoyen
 import com.etaratasy.app.ui.components.EcranHeader
 import com.etaratasy.app.ui.components.LabelSection
 import com.etaratasy.app.ui.theme.EtataColors

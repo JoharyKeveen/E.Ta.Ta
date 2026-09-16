@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Catalogue
-import com.etaratasy.app.data.DossierSante
+import com.etaratasy.app.model.Catalogue
+import com.etaratasy.app.model.DossierSante
 import com.etaratasy.app.ui.components.EcranHeader
 import com.etaratasy.app.ui.components.PuceChoix
 import com.etaratasy.app.ui.theme.EtataColors

@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Notification
-import com.etaratasy.app.data.TypeNotification
+import com.etaratasy.app.model.Notification
+import com.etaratasy.app.model.TypeNotification
 import com.etaratasy.app.ui.components.EcranHeader
 import com.etaratasy.app.ui.theme.EtataColors
 

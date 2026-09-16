@@ -1,98 +1,101 @@
-# E-TaraTasy (E.Ta.Ta) — application Android en Kotlin
+# E-TaraTasy (E.Ta.Ta) — application Android en Kotlin (MVVM)
 
 Application mobile destinée à réduire, voire supprimer, les files d'attente lors des
 demandes de documents administratifs auprès des Fokontany et des Arrondissements à
 Madagascar.
 
-## L'identifiant : le numéro de l'acte de naissance
+## Les deux règles ajoutées dans cette version
 
-Le numéro d'identification utilisé dans toute l'application est **le numéro de l'acte
-de naissance** du citoyen. Ce choix est structurant :
+**1. Documents sans rendez-vous → visibles numériquement, immédiatement.**
+Les certificats du Fokontany et le diplôme (BACC) ne nécessitent aucun passage
+physique. Dès le dépôt de la demande, `EtataViewModel.deposerDemande()` génère un
+`DocumentNumerique` et l'ajoute au portefeuille : le citoyen le consulte dans
+l'onglet **Portefeuille** ou via le bouton « Voir le document numérique » dans
+**Mes demandes**. Aucune attente, aucun guichet.
 
-- c'est la première et souvent la seule pièce que possède un Malagasy avant la CIN ;
-- il existe dès la naissance, ce qui permet d'inscrire aussi les mineurs ;
-- il est déjà rattaché à un registre officiel, ce qui empêche la création de comptes fictifs ;
-- il permet de déclencher automatiquement la notification de majorité (demande de CIN),
-  puisque l'année de naissance est contenue dans le numéro.
+**2. CIN et permis de conduire → permanents et non supprimables après retrait.**
+ces deux documents restent `surRendezVous = true` (ils exigent une remise en main
+propre), mais portent en plus `pieceOfficiellePermanente = true` dans le catalogue.
+Une fois le rendez-vous honoré, le citoyen appuie sur *« J'ai retiré ce document »*
+dans l'onglet RDV : `EtataViewModel.marquerRetrait()` crée alors une entrée dans
+`piecesOfficielles`, affichée en permanence dans le Portefeuille. **Aucune action de
+suppression n'existe dans l'interface pour cette liste** — contrairement aux codes de
+partage, qui eux sont révocables.
 
-Format retenu, modélisé dans `NumeroActeNaissance` :
+## Architecture MVVM
 
 ```
-NNNN/AAAA-CCC      exemple : 0453/2001-101
- |    |     |
- |    |     +-- code de la commune / arrondissement d'enregistrement
- |    +-------- année d'enregistrement de l'acte
- +------------- numéro d'ordre dans le registre
+com.etaratasy.app/
+├── model/                     MODEL — entités métier, immuables
+│   ├── Identite.kt            NumeroActeNaissance (identifiant = acte de naissance), Citoyen
+│   ├── Catalogue.kt           Guichet, TypeDocument (surRendezVous, pieceOfficiellePermanente)
+│   ├── Demande.kt             StatutDemande, Demande
+│   ├── RendezVous.kt
+│   ├── DocumentNumerique.kt   document affiché dans le portefeuille (permanent ou non)
+│   ├── Partage.kt             DureePartage, PartageAcces
+│   ├── Sante.kt                DossierSante
+│   ├── Notification.kt
+│   └── Controle.kt            ResultatControle (module forces de l'ordre)
+│
+├── repository/
+│   └── EtataRepository.kt     MODEL (accès aux données) — registre d'état civil simulé,
+│                               génération des références et des documents numériques.
+│                               Seule classe à remplacer par de vrais appels réseau.
+│
+├── viewmodel/
+│   ├── EtataUiState.kt        état unique et immuable de l'écran
+│   └── EtataViewModel.kt      VIEWMODEL — StateFlow<EtataUiState> + actions publiques
+│                               (deposerDemande, marquerRetrait, prendreRendezVous…).
+│                               Aucune classe Android, aucun Compose ici : testable
+│                               unitairement sans émulateur.
+│
+├── MainActivity.kt            VIEW (racine) — observe le StateFlow, route entre les
+│                               écrans, ne contient aucune règle métier.
+└── ui/
+    ├── theme/                 palette et typographie
+    ├── components/            composants réutilisables (boutons, pastilles, en-têtes)
+    └── screens/                VIEW — un composable par écran, stateless, reçoit l'état
+                                 et des lambdas ; module/ regroupe Partage, Santé, Contrôle.
 ```
 
-Le numéro sert également à construire la référence du récépissé de chaque demande
-(`ETT-0453.2001.101-8241`), pour que l'agent du guichet retrouve immédiatement le
-dossier dans le registre d'état civil.
-
-> La classe `NumeroActeNaissance` centralise la validation. Si le format officiel retenu
-> par l'administration diffère, il suffit de modifier la regex à cet endroit : le reste
-> de l'application n'a pas à changer.
+Le flux de données est à sens unique : `View` appelle une fonction du `ViewModel` →
+le `ViewModel` met à jour son `StateFlow` via le `Repository` → la `View` se
+recompose automatiquement. Aucun écran ne modifie l'état directement.
 
 ## Fonctionnalités couvertes
 
-| Point du cahier des charges | Où c'est implémenté |
+| Point du cahier des charges | Implémentation |
 |---|---|
-| Liste des 10 certificats du Fokontany | `Catalogue.certificatsFokontany`, `AccueilScreen` |
-| Demande de diplôme (BACC) | `Catalogue.autresDocuments`, `AccueilScreen` |
+| 10 certificats du Fokontany, visibles numériquement | `Catalogue.certificatsFokontany`, `PortefeuilleScreen` |
+| Demande de diplôme (BACC) | `Catalogue.autresDocuments` |
+| CIN et permis permanents après retrait | `TypeDocument.pieceOfficiellePermanente`, `marquerRetrait()`, `PortefeuilleScreen` |
 | Notifications (majorité, permis, RDV, MAJ agent) | `EtataRepository.notificationsInitiales`, `NotificationsScreen` |
 | Login sécurisé après activation | `ConnexionScreen` (acte de naissance + code SMS) |
-| Accès temporaire aux documents (partage) | `PartageScreen` |
+| Accès temporaire aux documents (partage, révocable) | `PartageScreen` |
 | Contrôle des forces de l'ordre | `ControleScreen` |
 | Module santé | `SanteScreen` |
 | Documents spéciaux sur rendez-vous | `Catalogue.documentsSpeciaux`, `RendezVousScreen` |
 
-## Architecture
-
-```
-app/src/main/java/com/etaratasy/app/
-├── MainActivity.kt            navigation, barre d'onglets, feuille de confirmation
-├── EtataViewModel.kt          état de l'application (StateFlow) et actions
-├── data/
-│   ├── Models.kt              NumeroActeNaissance, Citoyen, Demande, RendezVous…
-│   ├── Catalogue.kt           catalogue des documents
-│   └── EtataRepository.kt     registre simulé + règles métier
-└── ui/
-    ├── theme/Theme.kt         palette papier administratif / couleurs nationales
-    ├── components/Common.kt   composants réutilisables
-    └── screens/               Connexion, Accueil, Demandes, RendezVous, Profil,
-                               Notifications, modules/
-```
-
-Jetpack Compose + Material 3, `minSdk 24`, Kotlin 2.0.
-
 ## Lancer le projet
 
-1. Ouvrir le dossier dans Android Studio (Ladybug ou plus récent).
-2. Laisser Gradle synchroniser, puis `Run`.
-
-Comptes de test présents dans le registre simulé :
-
-| Numéro d'acte | Citoyen |
-|---|---|
-| `0453/2001-101` | RASOA Soa Hanitra |
-| `1207/1994-104` | RAKOTO Jean Michel |
-
-Le code SMS accepté est n'importe quelle suite de 6 chiffres.
+1. Ouvrir le dossier dans Android Studio (Ladybug ou plus récent), laisser Gradle
+   synchroniser, puis `Run`.
+2. Se connecter avec le numéro `0453/2001-101` ou `1207/1994-104` (registre simulé),
+   et n'importe quel code à 6 chiffres.
+3. Demander un certificat depuis **Accueil** → il apparaît aussitôt dans
+   **Portefeuille**. Prendre un RDV pour la CIN, puis appuyer sur *« J'ai retiré ce
+   document »* dans l'onglet **RDV** → la pièce devient permanente dans le
+   Portefeuille.
 
 ## Étapes suivantes pour une mise en production
 
-- **Backend** : remplacer `EtataRepository` par un client Retrofit/Ktor vers une API de
-  l'administration. Les signatures de méthodes sont déjà pensées pour ça.
-- **Vérification d'identité** : le seul numéro d'acte ne suffit pas comme preuve. Prévoir
-  l'activation en présentiel au Fokontany (l'agent vérifie la copie papier et rattache le
-  numéro de téléphone), puis OTP à chaque connexion.
-- **Stockage local chiffré** : `EncryptedSharedPreferences` ou DataStore chiffré pour la
-  session et le dossier santé.
-- **Signature des documents** : PDF signé électroniquement par le Fokontany, avec QR code
-  vérifiable hors ligne — c'est ce qui rend le document acceptable au guichet.
-- **Traçabilité du module forces de l'ordre** : journaliser chaque consultation avec le
-  matricule de l'agent, et restreindre l'accès par rôle côté serveur, pas seulement côté app.
-- **Mode hors-ligne** : Room + file d'attente de synchronisation, indispensable vu la
-  couverture réseau en dehors des grandes villes.
-- **Traduction malagasy** : externaliser tous les textes dans `strings.xml` et fournir
-  `values-mg/`.
+- Remplacer `EtataRepository` par un client Retrofit/Ktor : les signatures ne
+  changent pas, seul le corps des méthodes devient asynchrone (`suspend`).
+- Ajouter des tests unitaires sur `EtataViewModel` (aucune dépendance Android dans
+  cette classe, donc testable avec `kotlinx-coroutines-test` seul).
+- Stockage local chiffré (DataStore) pour persister session, portefeuille et dossier
+  santé entre les lancements — actuellement tout est en mémoire.
+- Signature électronique des documents (PDF + QR code vérifiable hors ligne).
+- Journalisation du module forces de l'ordre par matricule d'agent, côté serveur.
+- Mode hors-ligne (Room + file de synchronisation).
+- Traduction malagasy (`values-mg/`).

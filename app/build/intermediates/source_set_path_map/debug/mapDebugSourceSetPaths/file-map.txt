@@ -44,10 +44,10 @@ com.etaratasy.app-runtime-saveable-release-42 C:\Users\Achyl\.gradle\caches\9.3.
 com.etaratasy.app-ui-geometry-release-43 C:\Users\Achyl\.gradle\caches\9.3.0\transforms\e65e6350c9024cf557aee16909eed122\workspace\transformed\ui-geometry-release\res
 com.etaratasy.app-ui-util-release-44 C:\Users\Achyl\.gradle\caches\9.3.0\transforms\e7c78556e25cfe2ed0556aae7bdabcb3\workspace\transformed\ui-util-release\res
 com.etaratasy.app-ui-unit-release-45 C:\Users\Achyl\.gradle\caches\9.3.0\transforms\fe2b8feaf6f498f34a5afcf7531f0408\workspace\transformed\ui-unit-release\res
-com.etaratasy.app-pngs-46 D:\E.Ta.Ta\app\build\generated\res\pngs\debug
-com.etaratasy.app-resValues-47 D:\E.Ta.Ta\app\build\generated\res\resValues\debug
-com.etaratasy.app-packageDebugResources-48 D:\E.Ta.Ta\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.etaratasy.app-packageDebugResources-49 D:\E.Ta.Ta\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.etaratasy.app-debug-50 D:\E.Ta.Ta\app\build\intermediates\merged_res\debug\mergeDebugResources
-com.etaratasy.app-debug-51 D:\E.Ta.Ta\app\src\debug\res
-com.etaratasy.app-main-52 D:\E.Ta.Ta\app\src\main\res
+com.etaratasy.app-pngs-46 D:\etaratasy-kotlin\app\build\generated\res\pngs\debug
+com.etaratasy.app-resValues-47 D:\etaratasy-kotlin\app\build\generated\res\resValues\debug
+com.etaratasy.app-packageDebugResources-48 D:\etaratasy-kotlin\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.etaratasy.app-packageDebugResources-49 D:\etaratasy-kotlin\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.etaratasy.app-debug-50 D:\etaratasy-kotlin\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.etaratasy.app-debug-51 D:\etaratasy-kotlin\app\src\debug\res
+com.etaratasy.app-main-52 D:\etaratasy-kotlin\app\src\main\res

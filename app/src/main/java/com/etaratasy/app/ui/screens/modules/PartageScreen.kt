@@ -18,9 +18,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Catalogue
-import com.etaratasy.app.data.DureePartage
-import com.etaratasy.app.data.PartageAcces
+import com.etaratasy.app.model.Catalogue
+import com.etaratasy.app.model.DureePartage
+import com.etaratasy.app.model.PartageAcces
 import com.etaratasy.app.ui.components.*
 import com.etaratasy.app.ui.theme.EtataColors
 

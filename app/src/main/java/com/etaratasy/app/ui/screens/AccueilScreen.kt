@@ -18,9 +18,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Catalogue
-import com.etaratasy.app.data.Citoyen
-import com.etaratasy.app.data.TypeDocument
+import com.etaratasy.app.model.Catalogue
+import com.etaratasy.app.model.Citoyen
+import com.etaratasy.app.model.TypeDocument
 import com.etaratasy.app.ui.components.*
 import com.etaratasy.app.ui.theme.EtataColors
 
@@ -88,7 +88,7 @@ fun AccueilScreen(
         }
         items(Catalogue.certificatsFokontany, key = { it.id }) { doc ->
             Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
-                LigneDocument(doc.nom) { onDemander(doc) }
+                LigneDocument(doc.nom, "Généré numériquement, sans déplacement") { onDemander(doc) }
             }
         }
 
@@ -135,10 +135,17 @@ fun AccueilScreen(
                     ) {
                         Icon(Icons.Default.CalendarMonth, null, tint = EtataColors.Rouge, modifier = Modifier.size(19.dp))
                         Spacer(Modifier.width(12.dp))
-                        Text(
-                            "CIN, permis, actes d'Arrondissement…",
-                            fontSize = 14.sp, color = EtataColors.Ink, modifier = Modifier.weight(1f)
-                        )
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                "CIN, permis, actes d'Arrondissement…",
+                                fontSize = 14.sp, color = EtataColors.Ink
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                "CIN et permis restent ensuite dans votre portefeuille",
+                                fontSize = 11.sp, color = EtataColors.InkSoft
+                            )
+                        }
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight, null,
                             tint = EtataColors.InkSoft, modifier = Modifier.size(18.dp)

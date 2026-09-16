@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.StatutDemande
+import com.etaratasy.app.model.StatutDemande
 import com.etaratasy.app.ui.theme.EtataColors
 
 @Composable
@@ -163,6 +163,23 @@ fun BoutonPrincipal(
         modifier = modifier.fillMaxWidth().height(50.dp)
     ) {
         Text(texte, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+fun BoutonSecondaire(
+    texte: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = EtataColors.Ink),
+        border = BorderStroke(1.dp, EtataColors.Line),
+        modifier = modifier.fillMaxWidth().height(46.dp)
+    ) {
+        Text(texte, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
 }
 

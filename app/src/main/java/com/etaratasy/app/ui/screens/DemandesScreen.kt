@@ -15,7 +15,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.etaratasy.app.data.Demande
+import com.etaratasy.app.model.Demande
+import com.etaratasy.app.model.DocumentNumerique
+import com.etaratasy.app.ui.components.BoutonSecondaire
 import com.etaratasy.app.ui.components.EcranHeader
 import com.etaratasy.app.ui.components.EtatVide
 import com.etaratasy.app.ui.components.PastilleStatut
@@ -24,8 +26,10 @@ import com.etaratasy.app.ui.theme.EtataColors
 @Composable
 fun DemandesScreen(
     demandes: List<Demande>,
+    documentsNumeriques: List<DocumentNumerique>,
     nonLues: Int,
-    onNotifications: () -> Unit
+    onNotifications: () -> Unit,
+    onVoirDocument: (DocumentNumerique) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -51,6 +55,7 @@ fun DemandesScreen(
         }
 
         items(demandes, key = { it.id }) { d ->
+            val docLie = documentsNumeriques.firstOrNull { it.id == d.id }
             Box(Modifier.padding(horizontal = 20.dp, vertical = 5.dp)) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
@@ -88,6 +93,10 @@ fun DemandesScreen(
                             fontFamily = FontFamily.Monospace,
                             color = EtataColors.Rouge
                         )
+                        if (docLie != null) {
+                            Spacer(Modifier.height(14.dp))
+                            BoutonSecondaire("Voir le document numérique") { onVoirDocument(docLie) }
+                        }
                     }
                 }
             }

@@ -5,15 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,7 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.etaratasy.app.data.TypeDocument
+import com.etaratasy.app.model.DocumentNumerique
+import com.etaratasy.app.model.TypeDocument
 import com.etaratasy.app.ui.components.BoutonPrincipal
 import com.etaratasy.app.ui.screens.*
 import com.etaratasy.app.ui.screens.modules.ControleScreen
@@ -29,6 +30,7 @@ import com.etaratasy.app.ui.screens.modules.PartageScreen
 import com.etaratasy.app.ui.screens.modules.SanteScreen
 import com.etaratasy.app.ui.theme.ETaraTasyTheme
 import com.etaratasy.app.ui.theme.EtataColors
+import com.etaratasy.app.viewmodel.EtataViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,10 +46,15 @@ class MainActivity : ComponentActivity() {
 private enum class Onglet(val label: String, val icone: ImageVector) {
     ACCUEIL("Accueil", Icons.Default.Home),
     DEMANDES("Demandes", Icons.AutoMirrored.Filled.ListAlt),
-    RDV("Rendez-vous", Icons.Default.CalendarMonth),
+    RDV("RDV", Icons.Default.CalendarMonth),
+    PORTEFEUILLE("Portefeuille", Icons.Default.AccountBalanceWallet),
     PROFIL("Profil", Icons.Default.Person)
 }
 
+/**
+ * Composition racine (couche "View" de MVVM) : lit l'état exposé par [EtataViewModel]
+ * et se contente d'appeler ses fonctions publiques. Aucune règle métier ici.
+ */
 @Composable
 fun EtataApp(vm: EtataViewModel = viewModel()) {
     val ui by vm.ui.collectAsState()
@@ -56,6 +63,7 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
     var module by remember { mutableStateOf<String?>(null) }
     var notifsOuvertes by remember { mutableStateOf(false) }
     var docAConfirmer by remember { mutableStateOf<TypeDocument?>(null) }
+    var documentAffiche by remember { mutableStateOf<DocumentNumerique?>(null) }
 
     val citoyen = ui.citoyen
 
@@ -64,6 +72,12 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
             onVerifierNumero = vm::soumettreNumeroActe,
             onVerifierCode = vm::soumettreCode
         )
+        return
+    }
+
+    val doc = documentAffiche
+    if (doc != null) {
+        DocumentApercuScreen(document = doc, citoyen = citoyen, onRetour = { documentAffiche = null })
         return
     }
 
@@ -113,8 +127,10 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
 
                 onglet == Onglet.DEMANDES -> DemandesScreen(
                     demandes = ui.demandes,
+                    documentsNumeriques = ui.documentsNumeriques,
                     nonLues = ui.nonLues,
-                    onNotifications = { notifsOuvertes = true }
+                    onNotifications = { notifsOuvertes = true },
+                    onVoirDocument = { documentAffiche = it }
                 )
 
                 onglet == Onglet.RDV -> RendezVousScreen(
@@ -122,7 +138,16 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
                     nonLues = ui.nonLues,
                     onNotifications = { notifsOuvertes = true },
                     onPrendreRdv = vm::prendreRendezVous,
-                    onAnnuler = vm::annulerRendezVous
+                    onAnnuler = vm::annulerRendezVous,
+                    onRetrait = vm::marquerRetrait
+                )
+
+                onglet == Onglet.PORTEFEUILLE -> PortefeuilleScreen(
+                    piecesOfficielles = ui.piecesOfficielles,
+                    documentsNumeriques = ui.documentsNumeriques,
+                    nonLues = ui.nonLues,
+                    onNotifications = { notifsOuvertes = true },
+                    onOuvrirDocument = { documentAffiche = it }
                 )
 
                 onglet == Onglet.PROFIL -> ProfilScreen(
@@ -136,15 +161,15 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
         }
     }
 
-    val doc = docAConfirmer
-    if (doc != null) {
+    val demande = docAConfirmer
+    if (demande != null) {
         FeuilleConfirmation(
-            doc = doc,
+            doc = demande,
             reference = citoyen.numeroActe.toString(),
             onConfirmer = {
-                vm.deposerDemande(doc)
+                vm.deposerDemande(demande)
                 docAConfirmer = null
-                onglet = Onglet.DEMANDES
+                onglet = Onglet.PORTEFEUILLE
             },
             onAnnuler = { docAConfirmer = null }
         )
@@ -168,19 +193,17 @@ private fun FeuilleConfirmation(
             Spacer(Modifier.height(6.dp))
             Text(doc.nom, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = EtataColors.Ink, lineHeight = 26.sp)
             Spacer(Modifier.height(6.dp))
-            Text(
-                "Délivré par : ${doc.guichet.label}",
-                fontSize = 13.sp, color = EtataColors.InkSoft
-            )
+            Text("Délivré par : ${doc.guichet.label}", fontSize = 13.sp, color = EtataColors.InkSoft)
             Spacer(Modifier.height(18.dp))
             Surface(
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = EtataColors.AmbreSoft,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     "La demande sera rattachée à votre acte de naissance n° $reference. " +
-                        "Vous serez notifié dès que le document sera prêt à être retiré.",
+                        "Le document sera généré immédiatement et visible dans votre portefeuille — " +
+                        "aucun déplacement n'est nécessaire.",
                     fontSize = 12.sp, color = EtataColors.Ambre, lineHeight = 17.sp,
                     modifier = Modifier.padding(14.dp)
                 )
