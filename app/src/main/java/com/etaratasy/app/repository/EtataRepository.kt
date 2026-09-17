@@ -22,7 +22,14 @@ class EtataRepository {
             nom = "RASOA",
             prenoms = "Soa Hanitra",
             dateNaissance = "14/05/2001",
-            fokontany = "Analamahitsy, Antananarivo I",
+            lieuNaissance = "Maternité Befelatanana, Antananarivo",
+            numeroCin = "101 202 000 453",
+            adresse = "Lot II V 45 Analamahitsy",
+            arrondissement = "Antananarivo V",
+            profession = "Étudiante",
+            pere = "RASOA Jean Baptiste",
+            mere = "RAVELO Marie Louise",
+            fokontany = "Analamahitsy",
             telephone = "034 12 345 67"
         ),
         Citoyen(
@@ -30,7 +37,14 @@ class EtataRepository {
             nom = "RAKOTO",
             prenoms = "Jean Michel",
             dateNaissance = "02/11/1994",
-            fokontany = "Ankadifotsy, Antananarivo IV",
+            lieuNaissance = "Ambohimahasoa",
+            numeroCin = "104 194 001 207",
+            adresse = "Logt 432 Cité Ankadifotsy",
+            arrondissement = "Antananarivo I",
+            profession = "Comptable",
+            pere = "RAKOTO Pierre",
+            mere = "RANDRIA Suzanne",
+            fokontany = "Ankadifotsy",
             telephone = "033 98 765 43"
         )
     ).associateBy { it.numeroActe.toString() }
@@ -78,8 +92,26 @@ class EtataRepository {
      * Génère la version numérique d'un document, immédiatement consultable dans
      * l'application. `permanent = true` pour la CIN et le permis retirés au guichet.
      */
-    fun genererDocumentNumerique(type: TypeDocument, citoyen: Citoyen, permanent: Boolean = false): DocumentNumerique =
-        DocumentNumerique(
+    fun genererDocumentNumerique(type: TypeDocument, citoyen: Citoyen, permanent: Boolean = false): DocumentNumerique {
+        val metas = mutableMapOf<String, String>()
+        
+        when (type.id) {
+            "arr_cin" -> {
+                metas["dateDelivrance"] = "12/06/2019"
+                metas["lieuDelivrance"] = citoyen.arrondissement
+            }
+            "fkt_residence" -> {
+                metas["infoMaison"] = "Maison individuelle en dur, portail vert"
+                metas["ville"] = "Antananarivo"
+                metas["pays"] = "Madagascar"
+            }
+            "arr_permis" -> {
+                metas["categorie"] = "B"
+                metas["validite"] = "30/06/2028"
+            }
+        }
+
+        return DocumentNumerique(
             id = System.nanoTime(),
             typeDocumentId = type.id,
             nom = type.nom,
@@ -87,8 +119,10 @@ class EtataRepository {
             dateEmission = dateDuJour(),
             reference = genererReference(citoyen.numeroActe),
             permanent = permanent,
-            pdfUrl = getMockPdfPath(type.id)
+            pdfUrl = getMockPdfPath(type.id),
+            metadonnees = metas
         )
+    }
 
     /* ------------------------- Notifications système ------------------------- */
 

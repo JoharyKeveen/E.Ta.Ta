@@ -16,5 +16,6 @@ data class DocumentNumerique(
     val dateEmission: String,
     val reference: String,
     val permanent: Boolean,
-    val pdfUrl: String? = null
+    val pdfUrl: String? = null,
+    val metadonnees: Map<String, String> = emptyMap()
 )

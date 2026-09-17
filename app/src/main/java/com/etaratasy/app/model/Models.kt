@@ -29,6 +29,13 @@ data class Citoyen(
     val nom: String,
     val prenoms: String,
     val dateNaissance: String,
+    val lieuNaissance: String,
+    val numeroCin: String = "",
+    val adresse: String = "",
+    val arrondissement: String = "",
+    val profession: String = "",
+    val pere: String = "",
+    val mere: String = "",
     val fokontany: String,
     val telephone: String,
     val compteActive: Boolean = true

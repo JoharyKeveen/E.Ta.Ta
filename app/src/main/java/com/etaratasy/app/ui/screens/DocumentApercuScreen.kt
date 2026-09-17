@@ -74,18 +74,75 @@ fun DocumentApercuScreen(
                     )
 
                     Spacer(Modifier.height(20.dp))
+                    
+                    // --- Section Identité ---
+                    Text("IDENTITÉ DU TITULAIRE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EtataColors.InkSoft)
+                    Spacer(Modifier.height(10.dp))
                     LigneChamp("Nom complet", citoyen.nomComplet)
                     Spacer(Modifier.height(12.dp))
-                    LigneChamp("Numéro d'acte de naissance", citoyen.numeroActe.toString(), mono = true)
+                    Row(Modifier.fillMaxWidth()) {
+                        Box(Modifier.weight(1f)) { LigneChamp("Date de naissance", citoyen.dateNaissance) }
+                        Box(Modifier.weight(1f)) { LigneChamp("Lieu de naissance", citoyen.lieuNaissance) }
+                    }
+                    
+                    if (document.typeDocumentId == "arr_cin") {
+                        Spacer(Modifier.height(12.dp))
+                        LigneChamp("Numéro CIN", citoyen.numeroCin, mono = true)
+                    }
+                    
                     Spacer(Modifier.height(12.dp))
-                    LigneChamp("Fokontany", citoyen.fokontany)
-                    Spacer(Modifier.height(12.dp))
-                    LigneChamp("Date d'émission", document.dateEmission)
+                    LigneChamp("Profession", citoyen.profession)
 
                     Spacer(Modifier.height(20.dp))
                     HorizontalDivider(color = EtataColors.Line)
                     Spacer(Modifier.height(16.dp))
 
+                    // --- Section Filiation / Domicile ---
+                    Text("FILIATION ET DOMICILE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EtataColors.InkSoft)
+                    Spacer(Modifier.height(10.dp))
+                    LigneChamp("Père", citoyen.pere)
+                    Spacer(Modifier.height(12.dp))
+                    LigneChamp("Mère", citoyen.mere)
+                    Spacer(Modifier.height(12.dp))
+                    LigneChamp("Adresse", citoyen.adresse)
+                    Spacer(Modifier.height(12.dp))
+                    Row(Modifier.fillMaxWidth()) {
+                        Box(Modifier.weight(1f)) { LigneChamp("Fokontany", citoyen.fokontany) }
+                        Box(Modifier.weight(1f)) { LigneChamp("Arrondissement", citoyen.arrondissement) }
+                    }
+
+                    // --- Métadonnées spécifiques ---
+                    if (document.metadonnees.isNotEmpty()) {
+                        Spacer(Modifier.height(20.dp))
+                        HorizontalDivider(color = EtataColors.Line)
+                        Spacer(Modifier.height(16.dp))
+                        Text("DÉTAILS DU DOCUMENT", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EtataColors.InkSoft)
+                        Spacer(Modifier.height(10.dp))
+                        
+                        document.metadonnees.forEach { (cle, valeur) ->
+                            val label = when(cle) {
+                                "dateDelivrance" -> "Date de délivrance"
+                                "lieuDelivrance" -> "Lieu de délivrance"
+                                "infoMaison" -> "Information sur le domicile"
+                                "ville" -> "Ville"
+                                "pays" -> "Pays"
+                                "categorie" -> "Catégorie"
+                                "validite" -> "Valable jusqu'au"
+                                else -> cle
+                            }
+                            LigneChamp(label, valeur)
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider(color = EtataColors.Line)
+                    Spacer(Modifier.height(16.dp))
+
+                    Text("RÉFÉRENCES ADMINISTRATIVES", fontSize = 10.sp, color = EtataColors.InkSoft)
+                    Spacer(Modifier.height(8.dp))
+                    LigneChamp("Acte de naissance", citoyen.numeroActe.toString(), mono = true)
+                    Spacer(Modifier.height(12.dp))
                     Text("Référence de vérification", fontSize = 10.sp, color = EtataColors.InkSoft)
                     Spacer(Modifier.height(4.dp))
                     Text(

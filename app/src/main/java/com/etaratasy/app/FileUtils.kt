@@ -15,7 +15,14 @@ object FileUtils {
 
     fun telechargerPdfDepuisAssets(context: Context, assetPath: String, fileName: String): Boolean {
         return try {
-            val inputStream: InputStream = context.assets.open(assetPath)
+            // Vérification de l'existence de l'asset
+            val assetManager = context.assets
+            val inputStream: InputStream = try {
+                assetManager.open(assetPath)
+            } catch (e: Exception) {
+                // Fallback sur le template de résidence si l'asset spécifique n'existe pas
+                assetManager.open("pdfs/fkt_residence_template.pdf")
+            }
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val contentValues = ContentValues().apply {
