@@ -66,18 +66,25 @@ class EtataViewModel(
             _ui.update { it.copy(chargement = true) }
             delay(1500)
 
-            // Un premier document de démonstration, déjà dans le portefeuille.
-            val typeDemo = Catalogue.parId("fkt_residence")!!
-            val docDemo = repo.genererDocumentNumerique(typeDemo, citoyen)
-            val demandeDemo = Demande(
-                id = docDemo.id,
-                typeDocumentId = typeDemo.id,
-                nomDocument = typeDemo.nom,
-                guichet = typeDemo.guichet,
+            // Documents de démonstration : 
+            // 1. Un certificat déjà prêt
+            val typeRes = Catalogue.parId("fkt_residence")!!
+            val docRes = repo.genererDocumentNumerique(typeRes, citoyen)
+            val demandeRes = Demande(
+                id = docRes.id,
+                typeDocumentId = typeRes.id,
+                nomDocument = typeRes.nom,
+                guichet = typeRes.guichet,
                 dateDepot = "10/09/2026",
                 statut = StatutDemande.PRETE,
-                reference = docDemo.reference
+                reference = docRes.reference
             )
+
+            // 2. CIN et Permis déjà possédés (pièces officielles permanentes)
+            val typeCin = Catalogue.parId("arr_cin")!!
+            val typePermis = Catalogue.parId("arr_permis")!!
+            val docCin = repo.genererDocumentNumerique(typeCin, citoyen, permanent = true)
+            val docPermis = repo.genererDocumentNumerique(typePermis, citoyen, permanent = true)
 
             _ui.update {
                 it.copy(
@@ -86,8 +93,9 @@ class EtataViewModel(
                     chargement = false,
                     sessionSauvegardee = true,
                     notifications = repo.notificationsInitiales(citoyen),
-                    demandes = listOf(demandeDemo),
-                    documentsNumeriques = listOf(docDemo)
+                    demandes = listOf(demandeRes),
+                    documentsNumeriques = listOf(docRes),
+                    piecesOfficielles = listOf(docCin, docPermis)
                 )
             }
             prefs.edit().putString("dernier_acte", citoyen.numeroActe.toString())
@@ -238,7 +246,18 @@ class EtataViewModel(
                     if (it is EtataRepository.ResultatAuth.Succes) it.citoyen else null
                 }
                 if (citoyenDemo != null) {
-                    _ui.update { it.copy(citoyen = citoyenDemo, connecte = true) }
+                    val typeCin = Catalogue.parId("arr_cin")!!
+                    val typePermis = Catalogue.parId("arr_permis")!!
+                    val docCin = repo.genererDocumentNumerique(typeCin, citoyenDemo, permanent = true)
+                    val docPermis = repo.genererDocumentNumerique(typePermis, citoyenDemo, permanent = true)
+
+                    _ui.update { 
+                        it.copy(
+                            citoyen = citoyenDemo, 
+                            connecte = true,
+                            piecesOfficielles = listOf(docCin, docPermis)
+                        ) 
+                    }
                 }
             }
             

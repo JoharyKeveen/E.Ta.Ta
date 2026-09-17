@@ -199,24 +199,30 @@ private fun FormulaireRdv(
             Spacer(Modifier.height(22.dp))
             Text("Date souhaitée", fontSize = 12.sp, color = EtataColors.InkSoft)
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = date,
-                onValueChange = {},
-                readOnly = true,
-                placeholder = { Text("JJ/MM/AAAA", color = EtataColors.InkSoft, fontSize = 14.sp) },
-                singleLine = true,
-                trailingIcon = { Icon(Icons.Default.CalendarMonth, null, tint = EtataColors.Ink) },
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = EtataColors.Ink,
-                    unfocusedBorderColor = EtataColors.Line,
-                    focusedContainerColor = EtataColors.Surface,
-                    unfocusedContainerColor = EtataColors.Surface
-                ),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { datePickerDialog.show() }
-            )
+            ) {
+                OutlinedTextField(
+                    value = date,
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = false,
+                    placeholder = { Text("JJ/MM/AAAA", color = EtataColors.InkSoft, fontSize = 14.sp) },
+                    singleLine = true,
+                    trailingIcon = { Icon(Icons.Default.CalendarMonth, null, tint = EtataColors.Ink) },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledBorderColor = EtataColors.Line,
+                        disabledTextColor = EtataColors.Ink,
+                        disabledPlaceholderColor = EtataColors.InkSoft,
+                        disabledTrailingIconColor = EtataColors.Ink,
+                        disabledContainerColor = EtataColors.Surface
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(Modifier.height(20.dp))
             Text("Créneau", fontSize = 12.sp, color = EtataColors.InkSoft)
