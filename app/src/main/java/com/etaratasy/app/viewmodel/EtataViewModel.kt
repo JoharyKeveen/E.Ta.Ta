@@ -1,28 +1,49 @@
 package com.etaratasy.app.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.etaratasy.app.model.*
 import com.etaratasy.app.repository.EtataRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
- * ViewModel unique de l'application (architecture MVVM) :
- *  - Model      → com.etaratasy.app.model / com.etaratasy.app.repository
- *  - ViewModel  → cette classe : expose un état immuable (StateFlow) et des actions
- *  - View       → com.etaratasy.app.ui.screens, composables sans état propre,
- *                 qui lisent `ui` et appellent les fonctions publiques ci-dessous.
+ * ViewModel unique de l'application (architecture MVVM).
+ * Utilise AndroidViewModel pour accéder au Context et aux SharedPreferences.
  */
 class EtataViewModel(
-    private val repo: EtataRepository = EtataRepository()
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
 
-    private val _ui = MutableStateFlow(EtataUiState())
+    private val repo = EtataRepository()
+    private val prefs = application.getSharedPreferences("etata_prefs", Context.MODE_PRIVATE)
+
+    private val _ui = MutableStateFlow(EtataUiState(
+        securiteActivee = prefs.getBoolean("securite_activee", false),
+        sessionSauvegardee = prefs.getBoolean("session_sauvegardee", false)
+    ))
     val ui: StateFlow<EtataUiState> = _ui.asStateFlow()
 
     private var citoyenEnAttente: Citoyen? = null
+
+    init {
+        // Si une session est sauvegardée, on pré-charge le citoyen
+        if (_ui.value.sessionSauvegardee) {
+            val dernierActe = prefs.getString("dernier_acte", null)
+            if (dernierActe != null) {
+                val res = repo.verifierNumeroActe(dernierActe)
+                if (res is EtataRepository.ResultatAuth.Succes) {
+                    citoyenEnAttente = res.citoyen
+                }
+            }
+        }
+    }
 
     /* ---------------- Authentification par numéro d'acte de naissance ---------------- */
 
@@ -41,34 +62,46 @@ class EtataViewModel(
         if (!repo.verifierCode(code)) return "Code à 6 chiffres invalide."
         val citoyen = citoyenEnAttente ?: return "Session expirée, recommencez."
 
-        // Un premier document de démonstration, déjà dans le portefeuille.
-        val typeDemo = Catalogue.parId("fkt_residence")!!
-        val docDemo = repo.genererDocumentNumerique(typeDemo, citoyen)
-        val demandeDemo = Demande(
-            id = docDemo.id,
-            typeDocumentId = typeDemo.id,
-            nomDocument = typeDemo.nom,
-            guichet = typeDemo.guichet,
-            dateDepot = "10/09/2026",
-            statut = StatutDemande.PRETE,
-            reference = docDemo.reference
-        )
+        viewModelScope.launch {
+            _ui.update { it.copy(chargement = true) }
+            delay(1500)
 
-        _ui.update {
-            it.copy(
-                citoyen = citoyen,
-                connecte = true,
-                notifications = repo.notificationsInitiales(citoyen),
-                demandes = listOf(demandeDemo),
-                documentsNumeriques = listOf(docDemo)
+            // Un premier document de démonstration, déjà dans le portefeuille.
+            val typeDemo = Catalogue.parId("fkt_residence")!!
+            val docDemo = repo.genererDocumentNumerique(typeDemo, citoyen)
+            val demandeDemo = Demande(
+                id = docDemo.id,
+                typeDocumentId = typeDemo.id,
+                nomDocument = typeDemo.nom,
+                guichet = typeDemo.guichet,
+                dateDepot = "10/09/2026",
+                statut = StatutDemande.PRETE,
+                reference = docDemo.reference
             )
+
+            _ui.update {
+                it.copy(
+                    citoyen = citoyen,
+                    connecte = true,
+                    chargement = false,
+                    sessionSauvegardee = true,
+                    notifications = repo.notificationsInitiales(citoyen),
+                    demandes = listOf(demandeDemo),
+                    documentsNumeriques = listOf(docDemo)
+                )
+            }
+            prefs.edit().putString("dernier_acte", citoyen.numeroActe.toString())
+                .putBoolean("session_sauvegardee", true).apply()
         }
         return null
     }
 
     fun deconnexion() {
         citoyenEnAttente = null
-        _ui.value = EtataUiState()
+        _ui.value = EtataUiState(
+            securiteActivee = _ui.value.securiteActivee
+        )
+        prefs.edit().putBoolean("session_sauvegardee", false).apply()
     }
 
     /* ---------------- Demandes sans rendez-vous ---------------- */
@@ -81,21 +114,27 @@ class EtataViewModel(
      */
     fun deposerDemande(type: TypeDocument) {
         val citoyen = _ui.value.citoyen ?: return
-        val doc = repo.genererDocumentNumerique(type, citoyen)
-        val demande = Demande(
-            id = doc.id,
-            typeDocumentId = type.id,
-            nomDocument = type.nom,
-            guichet = type.guichet,
-            dateDepot = repo.dateDuJour(),
-            statut = StatutDemande.PRETE,
-            reference = doc.reference
-        )
-        _ui.update {
-            it.copy(
-                demandes = listOf(demande) + it.demandes,
-                documentsNumeriques = listOf(doc) + it.documentsNumeriques
+        viewModelScope.launch {
+            _ui.update { it.copy(chargement = true) }
+            delay(1200)
+            
+            val doc = repo.genererDocumentNumerique(type, citoyen)
+            val demande = Demande(
+                id = doc.id,
+                typeDocumentId = type.id,
+                nomDocument = type.nom,
+                guichet = type.guichet,
+                dateDepot = repo.dateDuJour(),
+                statut = StatutDemande.PRETE,
+                reference = doc.reference
             )
+            _ui.update {
+                it.copy(
+                    demandes = listOf(demande) + it.demandes,
+                    documentsNumeriques = listOf(doc) + it.documentsNumeriques,
+                    chargement = false
+                )
+            }
         }
     }
 
@@ -179,5 +218,31 @@ class EtataViewModel(
 
     fun effacerControle() {
         _ui.update { it.copy(resultatControle = null) }
+    }
+
+    /* ---------------- Sécurité ---------------- */
+
+    fun toggleSecurite(active: Boolean) {
+        _ui.update { it.copy(securiteActivee = active) }
+        prefs.edit().putBoolean("securite_activee", active).apply()
+    }
+
+    fun validerAuthentificationBiometrique() {
+        viewModelScope.launch {
+            _ui.update { it.copy(chargement = true) }
+            delay(1000)
+            
+            // Si on bypass le login, on charge un citoyen par défaut pour la démo
+            if (!_ui.value.connecte) {
+                val citoyenDemo = repo.verifierNumeroActe("0453/2001-101").let {
+                    if (it is EtataRepository.ResultatAuth.Succes) it.citoyen else null
+                }
+                if (citoyenDemo != null) {
+                    _ui.update { it.copy(citoyen = citoyenDemo, connecte = true) }
+                }
+            }
+            
+            _ui.update { it.copy(authentifieBiometrique = true, chargement = false) }
+        }
     }
 }

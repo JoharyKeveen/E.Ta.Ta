@@ -11,8 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,10 @@ import com.etaratasy.app.model.RendezVous
 import com.etaratasy.app.model.TypeDocument
 import com.etaratasy.app.ui.components.*
 import com.etaratasy.app.ui.theme.EtataColors
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import android.app.DatePickerDialog
 
 @Composable
 fun RendezVousScreen(
@@ -142,6 +148,22 @@ private fun FormulaireRdv(
 ) {
     var date by remember { mutableStateOf("") }
     var heure by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val calendar = remember { Calendar.getInstance() }
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                calendar.set(year, month, dayOfMonth)
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                date = sdf.format(calendar.time)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)
@@ -179,10 +201,11 @@ private fun FormulaireRdv(
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = date,
-                onValueChange = { date = it },
+                onValueChange = {},
+                readOnly = true,
                 placeholder = { Text("JJ/MM/AAAA", color = EtataColors.InkSoft, fontSize = 14.sp) },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                trailingIcon = { Icon(Icons.Default.CalendarMonth, null, tint = EtataColors.Ink) },
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = EtataColors.Ink,
@@ -190,7 +213,9 @@ private fun FormulaireRdv(
                     focusedContainerColor = EtataColors.Surface,
                     unfocusedContainerColor = EtataColors.Surface
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { datePickerDialog.show() }
             )
 
             Spacer(Modifier.height(20.dp))

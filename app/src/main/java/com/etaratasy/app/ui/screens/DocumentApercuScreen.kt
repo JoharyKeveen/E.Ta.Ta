@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -14,12 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.etaratasy.app.FileUtils
 import com.etaratasy.app.model.Citoyen
 import com.etaratasy.app.model.DocumentNumerique
+import com.etaratasy.app.ui.components.BoutonSecondaire
 import com.etaratasy.app.ui.components.EcranHeader
 import com.etaratasy.app.ui.theme.EtataColors
 
@@ -30,6 +35,8 @@ fun DocumentApercuScreen(
     citoyen: Citoyen,
     onRetour: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -105,6 +112,38 @@ fun DocumentApercuScreen(
                     "Il peut être vérifié par un agent à partir de la référence ci-dessus.",
                 fontSize = 11.sp, color = EtataColors.InkSoft, lineHeight = 16.sp
             )
+
+            Spacer(Modifier.height(24.dp))
+            Row(Modifier.fillMaxWidth()) {
+                Box(Modifier.weight(1f)) {
+                    BoutonSecondaire(
+                        "Télécharger",
+                        icone = Icons.Default.Download
+                    ) {
+                        val path = document.pdfUrl ?: "pdfs/fkt_residence_template.pdf"
+                        val success = FileUtils.telechargerPdfDepuisAssets(
+                            context,
+                            path,
+                            "${document.nom.replace(" ", "_")}.pdf"
+                        )
+                        if (success) {
+                            android.widget.Toast.makeText(context, "Document enregistré dans vos téléchargements", android.widget.Toast.LENGTH_LONG).show()
+                        } else {
+                            android.widget.Toast.makeText(context, "Erreur lors du téléchargement", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                Spacer(Modifier.width(12.dp))
+                Box(Modifier.weight(1f)) {
+                    BoutonSecondaire(
+                        "Imprimer",
+                        icone = Icons.Default.Print
+                    ) {
+                        // Simulation de l'impression (plus complexe à mocker réellement)
+                        android.widget.Toast.makeText(context, "Envoi vers l'imprimante...", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 }

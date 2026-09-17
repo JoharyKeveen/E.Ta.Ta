@@ -14,7 +14,11 @@ data class EtataUiState(
     val partages: List<PartageAcces> = emptyList(),
     val notifications: List<Notification> = emptyList(),
     val sante: DossierSante = DossierSante(),
-    val resultatControle: ResultatControle? = null
+    val resultatControle: ResultatControle? = null,
+    val securiteActivee: Boolean = false,
+    val authentifieBiometrique: Boolean = false,
+    val chargement: Boolean = false,
+    val sessionSauvegardee: Boolean = false
 ) {
     val nonLues: Int get() = notifications.count { !it.lue }
 }

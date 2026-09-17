@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.etaratasy.app-mergeDebugResources-56:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\rahel\\.gradle\\caches\\9.3.0\\transforms\\31c03c5a4fcb3e1ceb79079519ebba83\\workspace\\transformed\\appcompat-1.2.0\\res\\values-hdpi-v4\\values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

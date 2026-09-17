@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "com.etaratasy.app-debug-58:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.etaratasy.app-main-60:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.etaratasy.app-debug-58:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.etaratasy.app-main-60:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.etaratasy.app-debug-58:/drawable_logo_app.xml.flat",
+        "source": "com.etaratasy.app-main-60:/drawable/logo_app.xml"
+    },
+    {
+        "merged": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-debug-58:\\mipmap-xxhdpi_ic_launcher.xml.flat",
+        "source": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-main-60:\\mipmap-xxhdpi\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-debug-58:\\drawable_logo_app.xml.flat",
+        "source": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-main-60:\\drawable\\logo_app.xml"
+    },
+    {
+        "merged": "com.etaratasy.app-debug-58:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.etaratasy.app-main-60:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-debug-58:\\mipmap-xhdpi_ic_launcher.xml.flat",
+        "source": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-main-60:\\mipmap-xhdpi\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-debug-58:\\mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "C:\\Users\\rahel\\.gradle\\daemon\\9.3.0\\com.etaratasy.app-main-60:\\mipmap-xxxhdpi\\ic_launcher.xml"
+    }
+]

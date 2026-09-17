@@ -31,8 +31,10 @@ import com.etaratasy.app.ui.theme.EtataColors
 fun ProfilScreen(
     citoyen: Citoyen,
     nonLues: Int,
+    securiteActivee: Boolean,
     onNotifications: () -> Unit,
     onModule: (String) -> Unit,
+    onSecuriteToggle: (Boolean) -> Unit,
     onDeconnexion: () -> Unit
 ) {
     Column(
@@ -87,6 +89,38 @@ fun ProfilScreen(
             LigneModule("Informations santé", Icons.Default.MonitorHeart) { onModule("sante") }
             Spacer(Modifier.height(8.dp))
             LigneModule("Contrôle des forces de l'ordre", Icons.Default.Shield) { onModule("controle") }
+
+            Spacer(Modifier.height(26.dp))
+            LabelSection("Sécurité")
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = EtataColors.Surface,
+                border = BorderStroke(1.dp, EtataColors.Line),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Protection système", fontSize = 14.sp, color = EtataColors.Ink)
+                        Text(
+                            "Empreinte, code ou schéma du téléphone",
+                            fontSize = 11.sp, color = EtataColors.InkSoft
+                        )
+                    }
+                    Switch(
+                        checked = securiteActivee,
+                        onCheckedChange = onSecuriteToggle,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = EtataColors.Rouge,
+                            uncheckedThumbColor = EtataColors.InkSoft,
+                            uncheckedTrackColor = EtataColors.Line
+                        )
+                    )
+                }
+            }
 
             Spacer(Modifier.height(26.dp))
             TextButton(onClick = onDeconnexion, modifier = Modifier.fillMaxWidth()) {

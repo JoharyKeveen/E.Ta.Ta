@@ -70,6 +70,10 @@ class EtataRepository {
     fun dateDuJour(): String =
         SimpleDateFormat("dd/MM/yyyy", Locale.FRENCH).format(Calendar.getInstance().time)
 
+    /** Simule l'URL ou le chemin d'un fichier PDF pour le document. */
+    fun getMockPdfPath(typeDocumentId: String): String =
+        "pdfs/${typeDocumentId}_template.pdf"
+
     /**
      * Génère la version numérique d'un document, immédiatement consultable dans
      * l'application. `permanent = true` pour la CIN et le permis retirés au guichet.
@@ -82,7 +86,8 @@ class EtataRepository {
             guichet = type.guichet,
             dateEmission = dateDuJour(),
             reference = genererReference(citoyen.numeroActe),
-            permanent = permanent
+            permanent = permanent,
+            pdfUrl = getMockPdfPath(type.id)
         )
 
     /* ------------------------- Notifications système ------------------------- */

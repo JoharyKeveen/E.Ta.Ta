@@ -1,24 +1,5 @@
 package com.etaratasy.app.model
 
-enum class Guichet(val label: String) {
-    FOKONTANY("Fokontany"),
-    ARRONDISSEMENT("Arrondissement"),
-    CISCO("CISCO / Établissement")
-}
-
-data class TypeDocument(
-    val id: String,
-    val nom: String,
-    val guichet: Guichet,
-    /** true = la remise exige un passage physique, donc un rendez-vous. */
-    val surRendezVous: Boolean = false,
-    /**
-     * true uniquement pour la CIN et le permis de conduire : une fois retirés au
-     * guichet, ils deviennent des pièces permanentes du portefeuille, non supprimables.
-     */
-    val pieceOfficiellePermanente: Boolean = false
-)
-
 object Catalogue {
 
     /** Certificats du Fokontany : aucune présence requise, générés numériquement dès le dépôt. */

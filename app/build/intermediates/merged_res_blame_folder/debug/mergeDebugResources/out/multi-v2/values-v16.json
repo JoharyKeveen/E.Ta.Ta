@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.etaratasy.app-mergeDebugResources-56:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\rahel\\.gradle\\caches\\9.3.0\\transforms\\31c03c5a4fcb3e1ceb79079519ebba83\\workspace\\transformed\\appcompat-1.2.0\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

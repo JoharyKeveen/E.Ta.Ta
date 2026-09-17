@@ -1,28 +1,30 @@
 package com.etaratasy.app
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.fragment.app.FragmentActivity
+import com.etaratasy.app.SecurityUtils
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.etaratasy.app.model.*
 import com.etaratasy.app.model.DocumentNumerique
-import com.etaratasy.app.model.TypeDocument
 import com.etaratasy.app.ui.components.BoutonPrincipal
 import com.etaratasy.app.ui.screens.*
 import com.etaratasy.app.ui.screens.modules.ControleScreen
@@ -32,7 +34,7 @@ import com.etaratasy.app.ui.theme.ETaraTasyTheme
 import com.etaratasy.app.ui.theme.EtataColors
 import com.etaratasy.app.viewmodel.EtataViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -58,6 +60,7 @@ private enum class Onglet(val label: String, val icone: ImageVector) {
 @Composable
 fun EtataApp(vm: EtataViewModel = viewModel()) {
     val ui by vm.ui.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     var onglet by remember { mutableStateOf(Onglet.ACCUEIL) }
     var module by remember { mutableStateOf<String?>(null) }
@@ -67,10 +70,45 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
 
     val citoyen = ui.citoyen
 
+    // Écran de Chargement
+    if (ui.chargement) {
+        ChargementScreen()
+        return
+    }
+
+    // Sécurité Biométrique (Lancement auto ou accès protégé)
+    if (ui.securiteActivee && !ui.authentifieBiometrique && (ui.connecte || ui.sessionSauvegardee)) {
+        LaunchedEffect(Unit) {
+            SecurityUtils.showBiometricPrompt(
+                activity = context as FragmentActivity,
+                onSuccess = { vm.validerAuthentificationBiometrique() },
+                onError = { /* Gérer l'erreur */ }
+            )
+        }
+        SecurityGate(
+            onUnlock = {
+                SecurityUtils.showBiometricPrompt(
+                    activity = context as FragmentActivity,
+                    onSuccess = { vm.validerAuthentificationBiometrique() },
+                    onError = { }
+                )
+            }
+        )
+        return
+    }
+
     if (!ui.connecte || citoyen == null) {
         ConnexionScreen(
+            sessionSauvegardee = ui.sessionSauvegardee,
             onVerifierNumero = vm::soumettreNumeroActe,
-            onVerifierCode = vm::soumettreCode
+            onVerifierCode = vm::soumettreCode,
+            onBiometrie = {
+                SecurityUtils.showBiometricPrompt(
+                    activity = context as FragmentActivity,
+                    onSuccess = { vm.validerAuthentificationBiometrique() },
+                    onError = { }
+                )
+            }
         )
         return
     }
@@ -153,8 +191,10 @@ fun EtataApp(vm: EtataViewModel = viewModel()) {
                 onglet == Onglet.PROFIL -> ProfilScreen(
                     citoyen = citoyen,
                     nonLues = ui.nonLues,
+                    securiteActivee = ui.securiteActivee,
                     onNotifications = { notifsOuvertes = true },
                     onModule = { module = it },
+                    onSecuriteToggle = vm::toggleSecurite,
                     onDeconnexion = vm::deconnexion
                 )
             }
@@ -214,6 +254,71 @@ private fun FeuilleConfirmation(
             TextButton(onClick = onAnnuler, modifier = Modifier.fillMaxWidth()) {
                 Text("Annuler", color = EtataColors.InkSoft, fontSize = 14.sp)
             }
+        }
+    }
+}
+
+@Composable
+private fun SecurityGate(onUnlock: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(EtataColors.Paper),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                modifier = Modifier.size(100.dp),
+                shape = RoundedCornerShape(20.dp),
+                color = Color.Transparent
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_app),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+            Icon(
+                Icons.Default.Shield,
+                null,
+                tint = EtataColors.Rouge,
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(Modifier.height(16.dp))
+            Text("Sécurisé par le système", color = EtataColors.InkSoft)
+            Spacer(Modifier.height(24.dp))
+            BoutonPrincipal("Déverrouiller", onClick = onUnlock)
+        }
+    }
+}
+
+@Composable
+private fun ChargementScreen() {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(EtataColors.Paper),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                modifier = Modifier.size(120.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.Transparent
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_app),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            Spacer(Modifier.height(32.dp))
+            CircularProgressIndicator(color = EtataColors.Rouge, strokeWidth = 3.dp)
+            Spacer(Modifier.height(16.dp))
+            Text("Chargement de vos documents...", fontSize = 14.sp, color = EtataColors.InkSoft)
         }
     }
 }

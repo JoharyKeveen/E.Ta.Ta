@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.etaratasy.app-mergeDebugResources-56:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\rahel\\.gradle\\caches\\9.3.0\\transforms\\31c03c5a4fcb3e1ceb79079519ebba83\\workspace\\transformed\\appcompat-1.2.0\\res\\values-h720dp-v13\\values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -15,5 +15,6 @@ data class DocumentNumerique(
     val guichet: Guichet,
     val dateEmission: String,
     val reference: String,
-    val permanent: Boolean
+    val permanent: Boolean,
+    val pdfUrl: String? = null
 )

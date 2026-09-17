@@ -1,5 +1,6 @@
 package com.etaratasy.app.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,19 +9,25 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.etaratasy.app.R
 import com.etaratasy.app.ui.components.BoutonPrincipal
 import com.etaratasy.app.ui.components.ChampTexte
 import com.etaratasy.app.ui.theme.EtataColors
+import com.etaratasy.app.SecurityUtils
 
 /**
  * Écran de connexion.
@@ -32,13 +39,17 @@ import com.etaratasy.app.ui.theme.EtataColors
  */
 @Composable
 fun ConnexionScreen(
+    sessionSauvegardee: Boolean,
     onVerifierNumero: (String) -> String?,
-    onVerifierCode: (String) -> String?
+    onVerifierCode: (String) -> String?,
+    onBiometrie: () -> Unit
 ) {
     var etape by remember { mutableStateOf(0) } // 0 = acte, 1 = code SMS
     var numeroActe by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
     var erreur by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    var showManualCode by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -48,10 +59,17 @@ fun ConnexionScreen(
             .padding(horizontal = 24.dp)
             .padding(top = 56.dp, bottom = 32.dp)
     ) {
-        Surface(shape = RoundedCornerShape(14.dp), color = EtataColors.Rouge, modifier = Modifier.size(50.dp)) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Description, null, tint = Color.White, modifier = Modifier.size(24.dp))
-            }
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = Color.Transparent,
+            modifier = Modifier.size(80.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_app),
+                contentDescription = "Logo E-TaraTasy",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         Spacer(Modifier.height(22.dp))
         Text("E-TaraTasy", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = EtataColors.Ink)
@@ -108,13 +126,47 @@ fun ConnexionScreen(
                 erreur = onVerifierNumero(numeroActe)
                 if (erreur == null) etape = 1
             }
+
+            if (sessionSauvegardee) {
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onBiometrie,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = EtataColors.Ink),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, EtataColors.Line),
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    Icon(androidx.compose.material.icons.Icons.Default.Fingerprint, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Utiliser la sécurité du système", fontSize = 14.sp)
+                }
+            }
         } else {
             Text(
                 "Code reçu par SMS",
                 fontSize = 12.sp, fontWeight = FontWeight.Medium, color = EtataColors.InkSoft
             )
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
+            if (sessionSauvegardee && SecurityUtils.isBiometricAvailable(context) && !showManualCode) {
+                OutlinedButton(
+                    onClick = onBiometrie,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = EtataColors.Ink),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, EtataColors.Line),
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    Icon(Icons.Default.Fingerprint, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Se connecter avec la sécurité du système", fontSize = 14.sp)
+                }
+                Spacer(Modifier.height(12.dp))
+                TextButton(onClick = { showManualCode = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Entrer le code manuellement", color = EtataColors.InkSoft, fontSize = 13.sp)
+                }
+            }
+
+            if (!sessionSauvegardee || showManualCode.not().not() || !SecurityUtils.isBiometricAvailable(context)) {
+                OutlinedTextField(
                 value = code,
                 onValueChange = { if (it.length <= 6) { code = it; erreur = null } },
                 placeholder = { Text("• • • • • •", color = EtataColors.InkSoft) },
@@ -147,6 +199,7 @@ fun ConnexionScreen(
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = { etape = 0; code = ""; erreur = null }, modifier = Modifier.fillMaxWidth()) {
                 Text("Modifier le numéro d'acte", color = EtataColors.InkSoft, fontSize = 13.sp)
+            }
             }
         }
     }

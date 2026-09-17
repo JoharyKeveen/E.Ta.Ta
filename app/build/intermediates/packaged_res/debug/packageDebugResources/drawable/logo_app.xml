@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!--
+        E-TaraTasy logo
+        Transparent background: there is NO background <path>.
+        This VectorDrawable (provided by the user) is used as in-app logo.
+    -->
+
+    <!-- Smartphone -->
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M151,48 L361,48 Q391,48 391,78 L391,434 Q391,464 361,464 L151,464 Q121,464 121,434 L121,78 Q121,48 151,48 Z"/>
+
+    <!-- Phone screen -->
+    <path
+        android:fillColor="#DFF8EF"
+        android:pathData="M151,79 L361,79 Q369,79 369,88 L369,424 Q369,433 360,433 L152,433 Q143,433 143,424 L143,88 Q143,79 151,79 Z"/>
+
+    <!-- Phone speaker -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M215,65 L297,65 Q304,65 304,72 Q304,79 297,79 L215,79 Q208,79 208,72 Q208,65 215,65 Z"/>
+
+    <!-- Back documents -->
+    <path
+        android:fillColor="#BDEBDD"
+        android:pathData="M103,177 L266,139 L318,357 L154,395 Z"/>
+
+    <path
+        android:fillColor="#EAFBF5"
+        android:pathData="M116,159 L282,132 L322,354 L155,381 Z"/>
+
+    <!-- Main document -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M153,129 L319,129 L357,167 L357,365 Q357,378 344,378 L153,378 Q140,378 140,365 L140,142 Q140,129 153,129 Z"/>
+
+    <!-- Folded corner -->
+    <path
+        android:fillColor="#CFEFE4"
+        android:pathData="M319,129 L319,157 Q319,167 329,167 L357,167 Z"/>
+
+    <!-- Document lines -->
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M169,183 Q169,176 176,176 L238,176 Q245,176 245,183 Q245,190 238,190 L176,190 Q169,190 169,183 Z"/>
+
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M169,208 Q169,201 176,201 L319,201 Q326,201 326,208 Q326,215 319,215 L176,215 Q169,215 169,208 Z"/>
+
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M169,233 Q169,226 176,226 L319,226 Q326,226 326,233 Q326,240 319,240 L176,240 Q169,240 169,233 Z"/>
+
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M169,258 Q169,251 176,251 L302,251 Q309,251 309,258 Q309,265 302,265 L176,265 Q169,265 169,258 Z"/>
+
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M169,283 Q169,276 176,276 L258,276 Q265,276 265,283 Q265,290 258,290 L176,290 Q169,290 169,283 Z"/>
+
+    <!-- Verification circle -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M282,296 A39,39 0,1 0,360,296 A39,39 0,1 0,282,296 Z"/>
+
+    <!-- Check mark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M300,295 L316,311 L342,280 Q347,274 353,279 Q358,284 353,290 L322,326 Q317,332 311,326 L290,305 Q285,300 290,295 Q295,290 300,295 Z"/>
+
+    <!-- Madagascar silhouette, stylized -->
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M400,151
+            L419,136 L431,148 L435,166 L446,180 L443,197
+            L452,211 L447,228 L454,245 L447,263 L450,280
+            L441,297 L438,318 L429,337 L425,357
+            L414,376 L402,392 L390,382 L386,364
+            L379,350 L382,331 L376,315 L382,298
+            L377,280 L384,264 L381,246 L389,229
+            L386,211 L394,196 L391,179 Z"/>
+
+    <!-- Madagascar red upper section -->
+    <path
+        android:fillColor="#ED1C24"
+        android:pathData="M400,151
+            L419,136 L431,148 L435,166 L446,180 L443,197
+            L452,211 L447,228 L454,245 L447,263
+            L398,263 L384,264 L381,246 L389,229
+            L386,211 L394,196 L391,179 Z"/>
+
+    <!-- Madagascar white separation -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M391,260 L450,260 L447,268 L389,268 Z"/>
+
+    <!-- Tricolor ribbon: green base -->
+    <path
+        android:fillColor="#087F5B"
+        android:pathData="M76,330
+            Q119,399 205,420
+            Q310,445 438,386
+            Q459,376 474,360
+            Q455,401 414,424
+            Q303,486 183,454
+            Q92,431 54,362 Z"/>
+
+    <!-- White ribbon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M63,337
+            Q113,398 202,414
+            Q309,435 441,378
+            Q456,371 474,360
+            Q454,391 417,407
+            Q303,462 190,435
+            Q101,414 55,354 Z"/>
+
+    <!-- Red ribbon -->
+    <path
+        android:fillColor="#ED1C24"
+        android:pathData="M57,348
+            Q107,400 199,422
+            Q305,447 447,378
+            Q458,372 474,360
+            Q452,386 416,402
+            Q300,454 190,431
+            Q99,412 54,361 Z"/>
+
+</vector>
